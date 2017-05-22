@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 
-
+/// <summary>
+/// This class is responsible for all keyboard and mouse input.
+/// </summary>
 public class PlayerController : MonoBehaviour {
 
     KeyCode[] keycodes;
@@ -13,8 +15,10 @@ public class PlayerController : MonoBehaviour {
     }
 
     void Update() {
-        KeyboardUpdate();
-        MouseUpdate();
+        if (simon.gameState != GameState.Paused) {
+            KeyboardUpdate();
+            MouseUpdate();
+        }
     }
 
     void KeyboardUpdate() {

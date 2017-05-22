@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 
-
+/// <summary>
+/// This class is responsible for giving every class easy acces to all manager classes.
+/// </summary>
 public class RootManager : MonoBehaviour {
 
     #region SINGLETON PATTERN
@@ -23,4 +25,5 @@ public class RootManager : MonoBehaviour {
 
     public CameraManager cameraManager;
     public SimonManager simonManager;
+    public ScoreManager scoreManager;
 }

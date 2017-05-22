@@ -1,6 +1,9 @@
 ﻿using System.Collections;
 using UnityEngine;
 
+/// <summary>
+/// This class is responsible for a single button.
+/// </summary>
 public class ButtonController : MonoBehaviour, IClickable, IHighlightable {
 
     [SerializeField] KeyCode key;

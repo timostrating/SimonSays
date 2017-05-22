@@ -3,13 +3,19 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public enum GameState {
+    Paused,
     PayersTurn,
     SimonsTurn
 }
 
+/// <summary>
+/// This class is responsible for all the states the simon game can have.
+/// </summary>
 public class SimonManager : MonoBehaviour {
     public delegate void MyDelegate();
     public MyDelegate nextRoundCallback;                        // This is our callback if a round has ended
+    public MyDelegate newGameCallback;                          // This is our callback if we want to start a new game
+    public GameState gameState { get; private set; }            // Here we keep track who's turn it is
 
     [SerializeField] Commando[] commandos;
     public KeyCode[] keycodes {                                 // This is our public getter to sync all keycodes across all scripts
@@ -22,13 +28,13 @@ public class SimonManager : MonoBehaviour {
     }
 
     [SerializeField] float timeBetweenRounds = 1.5f;
-    
-    GameState gameState = GameState.SimonsTurn;                 // Here we keep track who's turn it is.
+
     Queue<KeyCode> simonHasSaid = new Queue<KeyCode>();         // This Queue is for the player, there is a backup in the SimonManager
 
 
 
-    void Start() {
+    void Awake() { gameState = GameState.Paused; }
+    public void StartGame() {
         NextRound();
     }
 
@@ -37,33 +43,39 @@ public class SimonManager : MonoBehaviour {
             if (simonHasSaid.Peek() == key)
                 simonHasSaid.Dequeue();
             else
-                Debug.LogError("You lose");
+                NewGame();
 
-            Highlight(key);
-            if (simonHasSaid.Count == 0)
+            HighlightButton(key);
+            if (gameState == GameState.PayersTurn && simonHasSaid.Count == 0)
                 NextRound();
         }
     }
 
-    public void Highlight(KeyCode key) {
+    public void HighlightButton(KeyCode key) {
         for (int i = 0; i < commandos.Length; i++)
             if (commandos[i].key == key)
                 commandos[i].button.Highlight();
     }
 
+    public void SetSimonsCommands(Queue<KeyCode> commands) {
+        simonHasSaid = new Queue<KeyCode>(commands);
+    }
+
+    void NewGame() {
+        // Debug.Log("__You_Lose__");
+        gameState = GameState.Paused;
+        simonHasSaid = new Queue<KeyCode>();
+        newGameCallback();
+    }
+
     void NextRound() { StartCoroutine(IENextRound()); }
     IEnumerator IENextRound() {
         gameState = GameState.SimonsTurn;
-        yield return new WaitForSeconds(timeBetweenRounds);
         if (nextRoundCallback != null)
             nextRoundCallback();
+        yield return new WaitForSeconds(timeBetweenRounds);
         gameState = GameState.PayersTurn;
         yield return null;
-    }
-
-
-    public void SetSimonsCommands(Queue<KeyCode> commands) {
-        simonHasSaid = new Queue<KeyCode>(commands);
     }
 }
 
